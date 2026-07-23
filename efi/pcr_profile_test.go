@@ -1388,7 +1388,7 @@ func (s *pcrProfileSuite) TestAddPCRProfileUC20WithAllowThunderboltSecurityLevel
 		vars: makeMockVars(c, withMsSecureBootConfig(), withSbatLevel([]byte("sbat,1,2022052400\ngrub,2\n"))),
 		log: efitest.NewLog(c, &efitest.LogOptions{
 			Algorithms:                []tpm2.HashAlgorithmId{tpm2.HashAlgorithmSHA256, tpm2.HashAlgorithmSHA1},
-			ThunderboltSecurityLevel0: efitest.ThunderboltSecurityLevel0,
+			ThunderboltSecurityLevel0: true,
 		}),
 		alg: tpm2.HashAlgorithmSHA256,
 		loadSequences: NewImageLoadSequences(
@@ -1436,7 +1436,7 @@ func (s *pcrProfileSuite) TestAddPCRProfileThunderboltSecurityLevel0(c *C) {
 		vars: makeMockVars(c, withMsSecureBootConfig(), withSbatLevel([]byte("sbat,1,2022052400\ngrub,2\n"))),
 		log: efitest.NewLog(c, &efitest.LogOptions{
 			Algorithms:                []tpm2.HashAlgorithmId{tpm2.HashAlgorithmSHA256, tpm2.HashAlgorithmSHA1},
-			ThunderboltSecurityLevel0: efitest.ThunderboltSecurityLevel0,
+			ThunderboltSecurityLevel0: true,
 		}),
 		alg:           tpm2.HashAlgorithmSHA256,
 		loadSequences: NewImageLoadSequences(),

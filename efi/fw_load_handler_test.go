@@ -530,7 +530,7 @@ func (s *fwLoadHandlerSuite) TestMeasureImageStartSecureBootPolicyProfileThunder
 
 	log := efitest.NewLog(c, &efitest.LogOptions{
 		Algorithms:                []tpm2.HashAlgorithmId{tpm2.HashAlgorithmSHA256, tpm2.HashAlgorithmSHA1},
-		ThunderboltSecurityLevel0: efitest.ThunderboltSecurityLevel0,
+		ThunderboltSecurityLevel0: true,
 	})
 
 	handler := NewFwLoadHandler(log)
@@ -544,7 +544,7 @@ func (s *fwLoadHandlerSuite) TestMeasureImageStartSecureBootPolicyProfileAllowTh
 		vars: vars,
 		logOptions: &efitest.LogOptions{
 			Algorithms:                []tpm2.HashAlgorithmId{tpm2.HashAlgorithmSHA256, tpm2.HashAlgorithmSHA1},
-			ThunderboltSecurityLevel0: efitest.ThunderboltSecurityLevel0,
+			ThunderboltSecurityLevel0: true,
 		},
 		alg:  tpm2.HashAlgorithmSHA256,
 		pcrs: MakePcrFlags(internal_efi.SecureBootPolicyPCR),
@@ -571,7 +571,7 @@ func (s *fwLoadHandlerSuite) TestMeasureImageStartSecureBootPolicyProfileInclude
 		vars: vars,
 		logOptions: &efitest.LogOptions{
 			Algorithms:                []tpm2.HashAlgorithmId{tpm2.HashAlgorithmSHA256, tpm2.HashAlgorithmSHA1},
-			ThunderboltSecurityLevel0: efitest.ThunderboltSecurityLevel0,
+			ThunderboltSecurityLevel0: true,
 		},
 		alg:  tpm2.HashAlgorithmSHA256,
 		pcrs: MakePcrFlags(internal_efi.SecureBootPolicyPCR),
