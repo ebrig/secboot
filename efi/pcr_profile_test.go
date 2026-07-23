@@ -1409,7 +1409,7 @@ func (s *pcrProfileSuite) TestAddPCRProfileUC20WithAllowThunderboltSecurityLevel
 			),
 		),
 		expected: []tpm2.PCRValues{
-			// Not including DMA protection string // TODO
+			// Not including Thunderbolt Security Level downgraded string
 			{
 				tpm2.HashAlgorithmSHA256: {
 					4:  testutil.DecodeHexString(c, "bec6121586508581e08a41244944292ef452879f8e19c7f93d166e912c6aac5e"),
@@ -1417,7 +1417,7 @@ func (s *pcrProfileSuite) TestAddPCRProfileUC20WithAllowThunderboltSecurityLevel
 					12: testutil.DecodeHexString(c, "fd1000c6f691c3054e2ff5cfacb39305820c9f3534ba67d7894cb753aa85074b"),
 				},
 			},
-			// Including DMA protection string // TODO
+			// Including Thunderbolt Security Level downgraded string
 			{
 				tpm2.HashAlgorithmSHA256: {
 					4:  testutil.DecodeHexString(c, "bec6121586508581e08a41244944292ef452879f8e19c7f93d166e912c6aac5e"),
