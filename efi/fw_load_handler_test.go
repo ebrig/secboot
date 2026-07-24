@@ -521,22 +521,6 @@ func (s *fwLoadHandlerSuite) TestMeasureImageStartSecureBootPolicyProfileInclude
 	})
 }
 
-func (s *fwLoadHandlerSuite) TestMeasureImageStartSecureBootPolicyProfileThunderboltSecurityLevel0(c *C) {
-	// Verify that the EV_EFI_ACTION "Security Level is Downgraded to 0" event raises an error.
-	collector := NewVariableSetCollector(efitest.NewMockHostEnvironment(makeMockVars(c, withMsSecureBootConfig()), nil))
-	ctx := newMockPcrBranchContext(&mockPcrProfileContext{
-		alg:  tpm2.HashAlgorithmSHA256,
-		pcrs: MakePcrFlags(internal_efi.SecureBootPolicyPCR)}, nil, collector.Next())
-
-	log := efitest.NewLog(c, &efitest.LogOptions{
-		Algorithms:                []tpm2.HashAlgorithmId{tpm2.HashAlgorithmSHA256, tpm2.HashAlgorithmSHA1},
-		ThunderboltSecurityLevel0: true,
-	})
-
-	handler := NewFwLoadHandler(log)
-	c.Check(handler.MeasureImageStart(ctx), ErrorMatches, `cannot measure secure boot policy: unexpected event type \(EV_EFI_ACTION\) found in log`)
-}
-
 func (s *fwLoadHandlerSuite) TestMeasureImageStartSecureBootPolicyProfileAllowThunderboltSecurityLevel0(c *C) {
 	// Verify that the EV_EFI_ACTION "Security Level is Downgraded to 0" event is permitted.
 	vars := makeMockVars(c, withMsSecureBootConfig())
@@ -1066,6 +1050,46 @@ func (s *fwLoadHandlerSuite) TestMeasureImageStartErrDisallowDMAProtectionDisabl
 
 	handler := NewFwLoadHandler(log)
 	c.Check(handler.MeasureImageStart(ctx), ErrorMatches, `cannot measure secure boot policy: unexpected event type \(EV_EFI_ACTION\) found in log, before config`)
+}
+
+func (s *fwLoadHandlerSuite) TestMeasureImageStartErrDisallowThunderboltSecurityLevel0(c *C) {
+	// Verify that the EV_EFI_ACTION "Security Level is Downgraded to 0" event raises an error.
+	collector := NewVariableSetCollector(efitest.NewMockHostEnvironment(makeMockVars(c, withMsSecureBootConfig()), nil))
+	ctx := newMockPcrBranchContext(&mockPcrProfileContext{
+		alg:  tpm2.HashAlgorithmSHA256,
+		pcrs: MakePcrFlags(internal_efi.SecureBootPolicyPCR)}, nil, collector.Next())
+
+	log := efitest.NewLog(c, &efitest.LogOptions{
+		Algorithms:                []tpm2.HashAlgorithmId{tpm2.HashAlgorithmSHA256, tpm2.HashAlgorithmSHA1},
+		ThunderboltSecurityLevel0: true,
+	})
+
+	handler := NewFwLoadHandler(log)
+	c.Check(handler.MeasureImageStart(ctx), ErrorMatches, `cannot measure secure boot policy: unexpected event type \(EV_EFI_ACTION\) found in log`)
+}
+
+func (s *fwLoadHandlerSuite) TestMeasureImageStartErrAllowThunderboltSecurityLevel0WithInsufficientDMAProtection(c *C) {
+	// Verify that an allowed event "Security Level is Downgraded to 0" together with an allowed event
+	// "DMA Protection Disabled" raise an error (as they are mutually exclusive).
+	collector := NewVariableSetCollector(efitest.NewMockHostEnvironment(makeMockVars(c, withMsSecureBootConfig()), nil))
+	loadParams := LoadParams{
+		"allow_insufficient_dma_protection":  true,
+		"allow_thunderbolt_security_level_0": true,
+	}
+	ctx := newMockPcrBranchContext(&mockPcrProfileContext{
+		alg:  tpm2.HashAlgorithmSHA256,
+		pcrs: MakePcrFlags(internal_efi.SecureBootPolicyPCR)},
+		&loadParams,
+		collector.Next())
+
+	log := efitest.NewLog(c, &efitest.LogOptions{
+		Algorithms:                []tpm2.HashAlgorithmId{tpm2.HashAlgorithmSHA256, tpm2.HashAlgorithmSHA1},
+		DMAProtection:             efitest.DMAProtectionDisabled,
+		ThunderboltSecurityLevel0: true,
+	})
+
+	handler := NewFwLoadHandler(log)
+	c.Check(handler.MeasureImageStart(ctx), ErrorMatches, `cannot measure secure boot policy: unexpected event type \(EV_EFI_ACTION\) found in log`)
 }
 
 func (s *fwLoadHandlerSuite) TestMeasureImageStartErrBadLogPCR7_1(c *C) {
